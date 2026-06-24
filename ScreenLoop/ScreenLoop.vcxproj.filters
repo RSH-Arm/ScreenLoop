@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Исходные файлы">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Файлы заголовков">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Файлы ресурсов">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="src">
+      <UniqueIdentifier>{bcb1b313-a148-4ea6-af4c-8cda3c01c82c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\core">
+      <UniqueIdentifier>{2efba2f8-1cc3-4172-a99c-17a1fab4e9e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\hooks">
+      <UniqueIdentifier>{b1db9e2f-d3e8-4e7a-bc4d-df2195d0b783}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\input">
+      <UniqueIdentifier>{da89ac00-7c45-42c5-b2a0-09a0daa18bc3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\screenshots">
+      <UniqueIdentifier>{efd3fcc0-8fbd-4de8-b896-8a1306434651}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\pdf">
+      <UniqueIdentifier>{85f85e5e-63b9-4500-a381-01a6ab205486}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\overlay">
+      <UniqueIdentifier>{027b23e9-9180-47e7-a889-ac394788bf92}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\core\Application.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\GlobalState.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\hooks\KeyboardHook.cpp">
+      <Filter>src\hooks</Filter>
+    </ClCompile>
+    <ClCompile Include="src\input\KeyboardSimulator.cpp">
+      <Filter>src\input</Filter>
+    </ClCompile>
+    <ClCompile Include="src\pdf\PDFGenerator.cpp">
+      <Filter>src\pdf</Filter>
+    </ClCompile>
+    <ClCompile Include="src\screenshots\MonitorManager.cpp">
+      <Filter>src\screenshots</Filter>
+    </ClCompile>
+    <ClCompile Include="src\screenshots\ScreenCapture.cpp">
+      <Filter>src\screenshots</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\overlay\OverlayWindow.cpp">
+      <Filter>src\overlay</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\TaskExecutor.cpp">
+      <Filter>src\core</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\core\Application.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\GlobalState.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\hooks\KeyboardHook.h">
+      <Filter>src\hooks</Filter>
+    </ClInclude>
+    <ClInclude Include="src\input\KeyboardSimulator.h">
+      <Filter>src\input</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pdf\PDFGenerator.h">
+      <Filter>src\pdf</Filter>
+    </ClInclude>
+    <ClInclude Include="src\screenshots\MonitorManager.h">
+      <Filter>src\screenshots</Filter>
+    </ClInclude>
+    <ClInclude Include="src\screenshots\ScreenCapture.h">
+      <Filter>src\screenshots</Filter>
+    </ClInclude>
+    <ClInclude Include="src\overlay\OverlayWindow.h">
+      <Filter>src\overlay</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\TaskExecutor.h">
+      <Filter>src\core</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="ScreenLoop/ScreenLoop.vcxproj" Id="99a3ddc2-715b-4b55-8ea8-9968808aaf75" />
+</Solution>
