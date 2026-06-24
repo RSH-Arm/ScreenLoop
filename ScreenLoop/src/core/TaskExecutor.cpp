@@ -66,7 +66,7 @@ void TaskExecutor::Execute() {
     std::cout << "\n=== SELECT SCREENSHOT AREA ===\n";
     std::cout << "Click and drag to select area\n";
     std::cout << "Press ENTER to confirm selection\n";
-    std::cout << "Press ESC or Right Click to cancel\n\n";
+    std::cout << "Press ESC to cancel and exit\n\n";
 
     // Создаем оверлей для выделения
     OverlayWindow overlay;
@@ -76,28 +76,44 @@ void TaskExecutor::Execute() {
         return;
     }
 
-    // Ждем завершения выделения (подтверждения Enter)
+    // Ждем завершения выделения (подтверждения Enter или отмены ESC)
     MSG msg;
     bool confirmed = false;
-    while (!confirmed) {
+    bool cancelled = false;
+    while (!confirmed && !cancelled) {
         if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
 
             if (msg.message == WM_QUIT) {
-                // Выделение подтверждено Enter
-                confirmed = true;
+                if (msg.wParam == 1) {
+                    // Отмена по ESC
+                    cancelled = true;
+                    std::cout << "\n[Selection cancelled by user]\n";
+                }
+                else {
+                    // Подтверждение Enter
+                    confirmed = true;
+                }
                 break;
             }
         }
         Sleep(10);
     }
 
+    overlay.Destroy();
+
+    // Если отмена - завершаем задачу
+    if (cancelled) {
+        state.isProcessing = false;
+        std::cout << "\n=== TASK CANCELLED ===\n";
+        return;
+    }
+
     // Проверяем, что выделение было подтверждено
     RECT selection = overlay.GetSelection();
     if (selection.left == 0 && selection.right == 0 && selection.top == 0 && selection.bottom == 0) {
-        std::cerr << "[ERROR] Selection cancelled\n";
-        overlay.Destroy();
+        std::cerr << "[ERROR] Invalid selection\n";
         state.isProcessing = false;
         return;
     }
@@ -106,8 +122,6 @@ void TaskExecutor::Execute() {
     state.click1.y = selection.top;
     state.click2.x = selection.right;
     state.click2.y = selection.bottom;
-
-    overlay.Destroy();
 
     if (state.click1.x >= state.click2.x || state.click1.y >= state.click2.y) {
         std::cerr << "[ERROR] Invalid selection\n";
