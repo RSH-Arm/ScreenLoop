@@ -69,6 +69,8 @@ HPDF_Page PDFGenerator::CreatePage(HPDF_Doc pdf, HPDF_Image image, int pageNumbe
     double x = (pageWidth - imageWidth) / 2;
     double y = (pageHeight - imageHeight) / 2;
 
+    HPDF_Page_DrawImage(page, image, x, y, imageWidth, imageHeight);
+
     return page;
 }
 
