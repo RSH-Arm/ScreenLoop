@@ -34,6 +34,9 @@
     <Filter Include="src\overlay">
       <UniqueIdentifier>{027b23e9-9180-47e7-a889-ac394788bf92}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\utils">
+      <UniqueIdentifier>{7d8c81f9-5071-408c-b652-f8f240e799b2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\core\Application.cpp">
@@ -66,6 +69,9 @@
     <ClCompile Include="src\core\TaskExecutor.cpp">
       <Filter>src\core</Filter>
     </ClCompile>
+    <ClCompile Include="src\utils\PageInputParser.cpp">
+      <Filter>src\utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\Application.h">
@@ -94,6 +100,12 @@
     </ClInclude>
     <ClInclude Include="src\core\TaskExecutor.h">
       <Filter>src\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\PageInputParser.h">
+      <Filter>src\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\PDFSettings.h">
+      <Filter>src\utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

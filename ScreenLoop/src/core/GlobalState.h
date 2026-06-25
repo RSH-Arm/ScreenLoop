@@ -3,20 +3,36 @@
 #include <atomic>
 #include <string>
 #include <vector>
+#include <map>
 #include "../screenshots/MonitorManager.h"
+
+// Структура для настроек PDF региона
+struct PDFConfig {
+    std::string format = "A4";          // Формат: A1, A2, A3, A4, A5
+    std::string orientation = "Portrait"; // Portrait или Landscape
+};
+
+// Структура для хранения области захвата и связанных с ней страниц
+struct CaptureRegion {
+    RECT rect;                          // Область захвата
+    std::vector<int> pages;             // Список страниц для этой области
+    PDFConfig pdfConfig;                // Настройки PDF для этого региона
+    std::string description;            // Описание для отладки
+};
 
 struct GlobalState {
     std::atomic<bool> hotkeyTriggered{ false };
     std::atomic<bool> isProcessing{ false };
     std::atomic<bool> waitingForContinue{ false };
     std::atomic<bool> appReady{ false };
+    std::atomic<bool> isSelectingRegions{ false };
 
-    RECT selectionRect{ 0, 0, 0, 0 };
+    int n = 0;  // Общее количество страниц
 
-    int n = 0;
+    // Список областей захвата
+    std::vector<CaptureRegion> regions;
 
-    POINT click1{ 0, 0 };
-    POINT click2{ 0, 0 };
+    RECT currentRect{ 0, 0, 0, 0 };
 
     HANDLE completionEvent = nullptr;
     HANDLE continueEvent = nullptr;

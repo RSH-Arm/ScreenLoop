@@ -158,6 +158,7 @@
     <ClCompile Include="src\pdf\PDFGenerator.cpp" />
     <ClCompile Include="src\screenshots\MonitorManager.cpp" />
     <ClCompile Include="src\screenshots\ScreenCapture.cpp" />
+    <ClCompile Include="src\utils\PageInputParser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\core\Application.h" />
@@ -169,6 +170,8 @@
     <ClInclude Include="src\pdf\PDFGenerator.h" />
     <ClInclude Include="src\screenshots\MonitorManager.h" />
     <ClInclude Include="src\screenshots\ScreenCapture.h" />
+    <ClInclude Include="src\utils\PageInputParser.h" />
+    <ClInclude Include="src\utils\PDFSettings.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

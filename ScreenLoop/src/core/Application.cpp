@@ -4,6 +4,7 @@
 #include "../screenshots/MonitorManager.h"
 #include <iostream>
 #include <thread>
+#include <limits> 
 
 #include <windows.h>
 #include <gdiplus.h>
@@ -59,7 +60,7 @@ void Application::PrintInstructions() {
 
     MonitorManager::PrintMonitorInfo();
 
-    std::cout << "Enter number of screenshots (n > 0): ";
+    std::cout << "Enter number of pages (n > 0): ";
     auto& state = GlobalStateManager::GetInstance();
     std::cin >> state.n;
 
@@ -67,15 +68,20 @@ void Application::PrintInstructions() {
         std::cout << "Error! Try again: ";
         std::cin >> state.n;
     }
+
+    // ОЧИЩАЕМ БУФЕР ПОСЛЕ ВВОДА ЧИСЛА
+    std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
+
     std::cout << "n = " << state.n << "\n\n";
 
     std::cout << "HOTKEY: Ctrl+Shift+F12\n";
     std::cout << "INSTRUCTIONS:\n";
     std::cout << "  1. Press Ctrl+Shift+F12 to start\n";
-    std::cout << "  2. Click and DRAG to select area\n";
-    std::cout << "  3. Press ENTER to confirm selection\n";  // ИЗМЕНЕНО
-    std::cout << "  4. Press Ctrl+Shift+F12 to continue\n";
-    std::cout << "  5. Program will take " << state.n << " screenshots and create PDF\n\n";
+    std::cout << "  2. Define capture regions one by one\n";
+    std::cout << "  3. For each region, enter page numbers (e.g., 1-10, 15, 20-25)\n";
+    std::cout << "  4. After all regions, capture will start\n";
+    std::cout << "  5. Press Ctrl+Shift+F12 to move to next page\n";
+    std::cout << "  6. Program will create PDF with all captures\n\n";
 }
 
 void Application::WaitForHotkey() {

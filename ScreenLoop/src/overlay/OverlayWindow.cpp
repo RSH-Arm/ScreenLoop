@@ -32,6 +32,13 @@ OverlayWindow::~OverlayWindow() {
 bool OverlayWindow::Create() {
     HINSTANCE hInstance = GetModuleHandle(nullptr);
 
+    // Очищаем очередь сообщений перед созданием окна
+    MSG msg;
+    while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+
     WNDCLASSEX wc = {};
     wc.cbSize = sizeof(WNDCLASSEX);
     wc.style = CS_HREDRAW | CS_VREDRAW;
