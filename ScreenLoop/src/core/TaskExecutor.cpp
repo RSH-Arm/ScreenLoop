@@ -9,21 +9,42 @@
 #include <algorithm>
 #include <limits>
 #include <vector>
+#include <filesystem>  // ДОБАВЛЯЕМ для работы с файловой системой
+#include <sys/stat.h>  // ДЛЯ создания папки
+
+// РЕАЛИЗАЦИЯ EnsureDirectoryExists
+bool TaskExecutor::EnsureDirectoryExists(const std::string& path) {
+    try {
+        std::filesystem::path dirPath(path);
+        if (!std::filesystem::exists(dirPath)) {
+            std::filesystem::create_directories(dirPath);
+            std::cout << "[INFO] Created directory: " << path << "\n";
+            return true;
+        }
+        return true;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "[ERROR] Failed to create directory: " << e.what() << "\n";
+        return false;
+    }
+}
 
 // РЕАЛИЗАЦИЯ GeneratePDFFilename
 std::string TaskExecutor::GeneratePDFFilename(const std::string& suffix) {
-    time_t now = time(nullptr);
-    struct tm timeinfo;
-    localtime_s(&timeinfo, &now);
-    char timeStr[64];
-    strftime(timeStr, sizeof(timeStr), "%Y%m%d_%H%M%S", &timeinfo);
+    auto& state = GlobalStateManager::GetInstance();
+    std::string baseName = state.pdfFileName.empty() ? "screenshots" : state.pdfFileName;
 
     if (suffix.empty()) {
-        return "screenshots_" + std::string(timeStr) + ".pdf";
+        return baseName + ".pdf";
     }
     else {
-        return "screenshots_" + std::string(timeStr) + "_" + suffix + ".pdf";
+        return baseName + "_" + suffix + ".pdf";
     }
+}
+
+// РЕАЛИЗАЦИЯ GetScreenshotPath
+std::string TaskExecutor::GetScreenshotPath(const std::string& filename) {
+    return "screen/" + filename;
 }
 
 // РЕАЛИЗАЦИЯ PrintAreaInfo
@@ -49,8 +70,11 @@ bool TaskExecutor::CapturePage(const RECT& rect, int pageNumber, const std::stri
     std::cout << "Area: (" << left << ", " << top << ") - (" << right << ", " << bottom << ")\n";
     std::cout << "Size: " << (right - left) << "x" << (bottom - top) << "\n";
 
-    if (ScreenCapture::CaptureArea(left, top, right, bottom, filename)) {
-        std::cout << "  Saved: " << filename << "\n";
+    // Сохраняем в папку screen
+    std::string fullPath = GetScreenshotPath(filename);
+
+    if (ScreenCapture::CaptureArea(left, top, right, bottom, fullPath)) {
+        std::cout << "  Saved: " << fullPath << "\n";
         return true;
     }
     else {
@@ -185,7 +209,6 @@ bool TaskExecutor::GetRegionFromUser(CaptureRegion& region, int maxPages) {
         return false;
     }
 
-    // Парсим с ограничением maxPages
     auto pages = PageInputParser::ParsePageString(input, maxPages);
     if (pages.empty()) {
         std::cerr << "[ERROR] Invalid page input. Please try again.\n";
@@ -253,12 +276,14 @@ bool TaskExecutor::CreateMixedPDFFromRegions(const std::vector<CaptureRegion>& r
         std::string filename = "page_" + std::to_string(page) + "_region_" +
             std::to_string(regionIndex + 1) + ".png";
 
-        if (!PDFGenerator::ValidateImageFile(filename)) {
-            std::cerr << "[PDF] File not found: " << filename << "\n";
+        std::string fullPath = GetScreenshotPath(filename);
+
+        if (!PDFGenerator::ValidateImageFile(fullPath)) {
+            std::cerr << "[PDF] File not found: " << fullPath << "\n";
             continue;
         }
 
-        orderedFiles.push_back(filename);
+        orderedFiles.push_back(fullPath);
         pageConfigs.push_back(regions[regionIndex].pdfConfig);
 
         std::cout << "  Page " << page << ": "
@@ -271,7 +296,7 @@ bool TaskExecutor::CreateMixedPDFFromRegions(const std::vector<CaptureRegion>& r
         return false;
     }
 
-    std::string pdfFilename = GeneratePDFFilename("mixed");
+    std::string pdfFilename = GeneratePDFFilename();
 
     if (PDFGenerator::CreateMixedPDF(orderedFiles, pageConfigs, pdfFilename)) {
         std::cout << "\n[PDF] File created: " << pdfFilename << "\n";
@@ -293,12 +318,20 @@ void TaskExecutor::Execute() {
     state.screenshotFiles.clear();
     state.regions.clear();
 
+    // Создаем папку screen
+    if (!EnsureDirectoryExists("screen")) {
+        std::cerr << "[ERROR] Failed to create 'screen' directory\n";
+        state.isProcessing = false;
+        return;
+    }
+
     MonitorManager::PrintMonitorInfo();
 
     std::cout << "\n=== MULTI-REGION CAPTURE SETUP ===\n";
     std::cout << "You will define one or more capture regions.\n";
     std::cout << "Each region can be assigned to specific pages and PDF settings.\n";
-    std::cout << "Total pages in document: " << state.totalPages << "\n\n";
+    std::cout << "Total pages in document: " << state.totalPages << "\n";
+    std::cout << "PDF file name: " << state.pdfFileName << ".pdf\n\n";
 
     bool continueAdding = true;
     while (continueAdding) {
@@ -332,7 +365,6 @@ void TaskExecutor::Execute() {
         return;
     }
 
-    // Собираем все уникальные страницы
     std::set<int> allPages;
     for (const auto& region : state.regions) {
         allPages.insert(region.pages.begin(), region.pages.end());
@@ -354,6 +386,8 @@ void TaskExecutor::Execute() {
     }
     std::cout << "============================\n";
     std::cout << "Total unique pages to capture: " << allPages.size() << "\n";
+    std::cout << "Screenshots will be saved to: screen/\n";
+    std::cout << "PDF file name: " << state.pdfFileName << ".pdf\n";
 
     std::cout << "\nPosition cursor at the page change location and press Ctrl+Shift+F12 to start capture...\n";
 
@@ -374,7 +408,6 @@ void TaskExecutor::Execute() {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-    // Захват страниц
     for (int page : allPages) {
         std::cout << "\n--- Page " << page << " ---\n";
 

@@ -33,7 +33,7 @@ bool Application::Initialize() {
     // GDI+ Initialization
     GdiplusStartupInput startupInput;
     auto& state = GlobalStateManager::GetInstance();
-    state.appReady = true; // Пометить приложение как готовое
+    state.appReady = true;
     if (GdiplusStartup(&state.gdiplusToken, &startupInput, nullptr) != Ok) {
         std::cerr << "ERROR: Failed to initialize GDI+\n";
         return false;
@@ -73,6 +73,19 @@ void Application::PrintInstructions() {
 
     std::cout << "Total pages: " << state.totalPages << "\n\n";
 
+    // Ввод имени PDF файла
+    std::cout << "Enter PDF file name (without extension, default: screenshots): ";
+    std::string fileName;
+    std::getline(std::cin, fileName);
+
+    if (fileName.empty()) {
+        state.pdfFileName = "screenshots";
+    }
+    else {
+        state.pdfFileName = fileName;
+    }
+    std::cout << "PDF file name: " << state.pdfFileName << ".pdf\n\n";
+
     std::cout << "HOTKEY: Ctrl+Shift+F12\n";
     std::cout << "INSTRUCTIONS:\n";
     std::cout << "  1. Press Ctrl+Shift+F12 to start\n";
@@ -87,7 +100,6 @@ void Application::PrintInstructions() {
 void Application::WaitForHotkey() {
     std::cout << "Waiting for hotkey...\n\n";
 
-    // Очистить очередь сообщений перед ожиданием
     MSG msg;
     while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
         TranslateMessage(&msg);

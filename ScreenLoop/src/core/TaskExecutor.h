@@ -13,8 +13,10 @@ public:
 
 private:
     static std::string GeneratePDFFilename(const std::string& suffix = "");
+    static std::string GetScreenshotPath(const std::string& filename);  // НОВЫЙ МЕТОД
+    static bool EnsureDirectoryExists(const std::string& path);        // НОВЫЙ МЕТОД
     static void PrintAreaInfo(const RECT& rect);
-    static bool GetRegionFromUser(CaptureRegion& region, int maxPages);  // ВОЗВРАЩЕН maxPages
+    static bool GetRegionFromUser(CaptureRegion& region, int maxPages);
     static bool CapturePage(const RECT& rect, int pageNumber, const std::string& filename);
     static bool GetPDFSettingsFromUser(PDFConfig& config);
     static bool CreateMixedPDFFromRegions(const std::vector<CaptureRegion>& regions);

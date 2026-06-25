@@ -27,6 +27,7 @@ struct GlobalState {
     std::atomic<bool> appReady{ false };
     std::atomic<bool> isSelectingRegions{ false };
 
+    std::string pdfFileName = "screenshots";  // Имя PDF файла (без расширения)
     int totalPages = 0;  // Общее количество страниц в документе (для ограничения)
 
     std::vector<CaptureRegion> regions;

@@ -8,7 +8,6 @@
 // Получение размеров страницы
 void PDFGenerator::GetPageSize(const std::string& format, const std::string& orientation,
     double& width, double& height) {
-    // Размеры в пунктах для форматов ISO 216
     std::map<std::string, std::pair<double, double>> sizes = {
         {"A1", {1684.0, 2384.0}},
         {"A2", {1191.0, 1684.0}},
@@ -29,7 +28,6 @@ void PDFGenerator::GetPageSize(const std::string& format, const std::string& ori
         }
     }
     else {
-        // По умолчанию A4 Portrait
         width = 595.0;
         height = 842.0;
     }
@@ -74,7 +72,6 @@ HPDF_Page PDFGenerator::CreatePage(HPDF_Doc pdf, HPDF_Image image, int pageNumbe
     return page;
 }
 
-// Создание PDF с едиными настройками
 bool PDFGenerator::CreatePDF(const std::vector<std::string>& imageFiles,
     const std::string& pdfFilename,
     const std::string& format,
@@ -128,7 +125,6 @@ bool PDFGenerator::CreatePDF(const std::vector<std::string>& imageFiles,
     return true;
 }
 
-// Создание PDF с разными настройками для каждой страницы
 bool PDFGenerator::CreateMixedPDF(const std::vector<std::string>& imageFiles,
     const std::vector<PDFConfig>& pageConfigs,
     const std::string& pdfFilename) {
@@ -166,7 +162,6 @@ bool PDFGenerator::CreateMixedPDF(const std::vector<std::string>& imageFiles,
             continue;
         }
 
-        // Используем настройки для этой страницы
         const auto& config = pageConfigs[i];
         double pageWidth, pageHeight;
         GetPageSize(config.format, config.orientation, pageWidth, pageHeight);
