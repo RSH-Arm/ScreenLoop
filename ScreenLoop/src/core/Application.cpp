@@ -60,28 +60,28 @@ void Application::PrintInstructions() {
 
     MonitorManager::PrintMonitorInfo();
 
-    std::cout << "Enter number of pages (n > 0): ";
+    std::cout << "Enter total number of pages in the document (n > 0): ";
     auto& state = GlobalStateManager::GetInstance();
-    std::cin >> state.n;
+    std::cin >> state.totalPages;
 
-    while (state.n <= 0) {
+    while (state.totalPages <= 0) {
         std::cout << "Error! Try again: ";
-        std::cin >> state.n;
+        std::cin >> state.totalPages;
     }
 
-    // ОЧИЩАЕМ БУФЕР ПОСЛЕ ВВОДА ЧИСЛА
     std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
 
-    std::cout << "n = " << state.n << "\n\n";
+    std::cout << "Total pages: " << state.totalPages << "\n\n";
 
     std::cout << "HOTKEY: Ctrl+Shift+F12\n";
     std::cout << "INSTRUCTIONS:\n";
     std::cout << "  1. Press Ctrl+Shift+F12 to start\n";
     std::cout << "  2. Define capture regions one by one\n";
     std::cout << "  3. For each region, enter page numbers (e.g., 1-10, 15, 20-25)\n";
-    std::cout << "  4. After all regions, capture will start\n";
-    std::cout << "  5. Press Ctrl+Shift+F12 to move to next page\n";
-    std::cout << "  6. Program will create PDF with all captures\n\n";
+    std::cout << "  4. All page numbers must be within 1-" << state.totalPages << "\n";
+    std::cout << "  5. After all regions, capture will start\n";
+    std::cout << "  6. Press Ctrl+Shift+F12 to start automatic capture\n";
+    std::cout << "  7. Program will create PDF with all captures\n\n";
 }
 
 void Application::WaitForHotkey() {

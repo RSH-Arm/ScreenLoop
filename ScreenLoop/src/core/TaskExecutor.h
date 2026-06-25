@@ -12,10 +12,10 @@ public:
     static void Execute();
 
 private:
-    static std::string GeneratePDFFilename(const std::string& suffix = "");  // ДОБАВЛЕН ПАРАМЕТР
+    static std::string GeneratePDFFilename(const std::string& suffix = "");
     static void PrintAreaInfo(const RECT& rect);
-    static bool GetRegionFromUser(CaptureRegion& region, int maxPages);
+    static bool GetRegionFromUser(CaptureRegion& region, int maxPages);  // ВОЗВРАЩЕН maxPages
     static bool CapturePage(const RECT& rect, int pageNumber, const std::string& filename);
     static bool GetPDFSettingsFromUser(PDFConfig& config);
-    static bool CreateMixedPDFFromRegions(const std::vector<CaptureRegion>& regions, int totalPages);  // ДОБАВЛЕНО
+    static bool CreateMixedPDFFromRegions(const std::vector<CaptureRegion>& regions);
 };

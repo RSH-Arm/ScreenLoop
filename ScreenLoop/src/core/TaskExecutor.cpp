@@ -17,10 +17,11 @@ std::string TaskExecutor::GeneratePDFFilename(const std::string& suffix) {
     localtime_s(&timeinfo, &now);
     char timeStr[64];
     strftime(timeStr, sizeof(timeStr), "%Y%m%d_%H%M%S", &timeinfo);
-    
+
     if (suffix.empty()) {
         return "screenshots_" + std::string(timeStr) + ".pdf";
-    } else {
+    }
+    else {
         return "screenshots_" + std::string(timeStr) + "_" + suffix + ".pdf";
     }
 }
@@ -109,7 +110,7 @@ bool TaskExecutor::GetPDFSettingsFromUser(PDFConfig& config) {
     return true;
 }
 
-// РЕАЛИЗАЦИЯ GetRegionFromUser
+// РЕАЛИЗАЦИЯ GetRegionFromUser - с ограничением по totalPages
 bool TaskExecutor::GetRegionFromUser(CaptureRegion& region, int maxPages) {
     std::cout << "\n=== SELECT SCREENSHOT AREA ===\n";
     std::cout << "Click and drag to select area\n";
@@ -184,6 +185,7 @@ bool TaskExecutor::GetRegionFromUser(CaptureRegion& region, int maxPages) {
         return false;
     }
 
+    // Парсим с ограничением maxPages
     auto pages = PageInputParser::ParsePageString(input, maxPages);
     if (pages.empty()) {
         std::cerr << "[ERROR] Invalid page input. Please try again.\n";
@@ -207,23 +209,33 @@ bool TaskExecutor::GetRegionFromUser(CaptureRegion& region, int maxPages) {
     return true;
 }
 
-// РЕАЛИЗАЦИЯ CreateMixedPDFFromRegions - создает один PDF с разными форматами страниц
-bool TaskExecutor::CreateMixedPDFFromRegions(const std::vector<CaptureRegion>& regions, int totalPages) {
-    if (regions.empty() || totalPages <= 0) {
-        std::cerr << "[PDF] No regions or invalid total pages\n";
+// РЕАЛИЗАЦИЯ CreateMixedPDFFromRegions
+bool TaskExecutor::CreateMixedPDFFromRegions(const std::vector<CaptureRegion>& regions) {
+    if (regions.empty()) {
+        std::cerr << "[PDF] No regions\n";
+        return false;
+    }
+
+    std::set<int> allPages;
+    for (const auto& region : regions) {
+        allPages.insert(region.pages.begin(), region.pages.end());
+    }
+
+    if (allPages.empty()) {
+        std::cerr << "[PDF] No pages found in regions\n";
         return false;
     }
 
     std::cout << "\n=== CREATING SINGLE PDF WITH MIXED PAGE SIZES ===\n";
+    std::cout << "Total unique pages: " << allPages.size() << "\n";
 
-    // Собираем файлы и настройки для каждой страницы по порядку
     std::vector<std::string> orderedFiles;
     std::vector<PDFConfig> pageConfigs;
 
-    for (int page = 1; page <= totalPages; ++page) {
+    for (int page : allPages) {
         bool found = false;
         int regionIndex = -1;
-        
+
         for (size_t i = 0; i < regions.size(); ++i) {
             const auto& region = regions[i];
             if (std::find(region.pages.begin(), region.pages.end(), page) != region.pages.end()) {
@@ -238,11 +250,9 @@ bool TaskExecutor::CreateMixedPDFFromRegions(const std::vector<CaptureRegion>& r
             continue;
         }
 
-        // Имя файла для этой страницы
-        std::string filename = "page_" + std::to_string(page) + "_region_" + 
-                               std::to_string(regionIndex + 1) + ".png";
-        
-        // Проверяем существование файла
+        std::string filename = "page_" + std::to_string(page) + "_region_" +
+            std::to_string(regionIndex + 1) + ".png";
+
         if (!PDFGenerator::ValidateImageFile(filename)) {
             std::cerr << "[PDF] File not found: " << filename << "\n";
             continue;
@@ -250,10 +260,10 @@ bool TaskExecutor::CreateMixedPDFFromRegions(const std::vector<CaptureRegion>& r
 
         orderedFiles.push_back(filename);
         pageConfigs.push_back(regions[regionIndex].pdfConfig);
-        
-        std::cout << "  Page " << page << ": " 
-                  << regions[regionIndex].pdfConfig.format << " " 
-                  << regions[regionIndex].pdfConfig.orientation << "\n";
+
+        std::cout << "  Page " << page << ": "
+            << regions[regionIndex].pdfConfig.format << " "
+            << regions[regionIndex].pdfConfig.orientation << "\n";
     }
 
     if (orderedFiles.empty()) {
@@ -261,9 +271,8 @@ bool TaskExecutor::CreateMixedPDFFromRegions(const std::vector<CaptureRegion>& r
         return false;
     }
 
-    // Создаем PDF с разными форматами страниц
     std::string pdfFilename = GeneratePDFFilename("mixed");
-    
+
     if (PDFGenerator::CreateMixedPDF(orderedFiles, pageConfigs, pdfFilename)) {
         std::cout << "\n[PDF] File created: " << pdfFilename << "\n";
         std::cout << "[PDF] Total pages: " << orderedFiles.size() << "\n";
@@ -288,12 +297,13 @@ void TaskExecutor::Execute() {
 
     std::cout << "\n=== MULTI-REGION CAPTURE SETUP ===\n";
     std::cout << "You will define one or more capture regions.\n";
-    std::cout << "Each region can be assigned to specific pages and PDF settings.\n\n";
+    std::cout << "Each region can be assigned to specific pages and PDF settings.\n";
+    std::cout << "Total pages in document: " << state.totalPages << "\n\n";
 
     bool continueAdding = true;
     while (continueAdding) {
         CaptureRegion region;
-        if (!GetRegionFromUser(region, state.n)) {
+        if (!GetRegionFromUser(region, state.totalPages)) {
             std::cout << "\n=== CAPTURE SETUP CANCELLED ===\n";
             state.isProcessing = false;
             return;
@@ -322,6 +332,12 @@ void TaskExecutor::Execute() {
         return;
     }
 
+    // Собираем все уникальные страницы
+    std::set<int> allPages;
+    for (const auto& region : state.regions) {
+        allPages.insert(region.pages.begin(), region.pages.end());
+    }
+
     std::cout << "\n=== CAPTURE REGIONS SUMMARY ===\n";
     for (size_t i = 0; i < state.regions.size(); ++i) {
         const auto& region = state.regions[i];
@@ -337,6 +353,7 @@ void TaskExecutor::Execute() {
         std::cout << "  PDF Orientation: " << region.pdfConfig.orientation << "\n";
     }
     std::cout << "============================\n";
+    std::cout << "Total unique pages to capture: " << allPages.size() << "\n";
 
     std::cout << "\nPosition cursor at the page change location and press Ctrl+Shift+F12 to start capture...\n";
 
@@ -352,13 +369,13 @@ void TaskExecutor::Execute() {
     state.continueEvent = nullptr;
 
     std::cout << "\n=== STARTING AUTOMATIC CAPTURE ===\n";
-    std::cout << "Total pages: " << state.n << "\n";
+    std::cout << "Total unique pages: " << allPages.size() << "\n";
     std::cout << "Total regions: " << state.regions.size() << "\n";
 
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
     // Захват страниц
-    for (int page = 1; page <= state.n; ++page) {
+    for (int page : allPages) {
         std::cout << "\n--- Page " << page << " ---\n";
 
         std::cout << "  Ввод 4-х Backspaces...\n";
@@ -378,11 +395,11 @@ void TaskExecutor::Execute() {
             const auto& region = state.regions[i];
             if (std::find(region.pages.begin(), region.pages.end(), page) != region.pages.end()) {
                 std::string filename = "page_" + std::to_string(page) + "_region_" + std::to_string(i + 1) + ".png";
-                
+
                 if (CapturePage(region.rect, page, filename)) {
                     state.screenshotFiles.push_back(filename);
                 }
-                
+
                 regionFound = true;
                 break;
             }
@@ -392,17 +409,14 @@ void TaskExecutor::Execute() {
             std::cout << "  No region assigned for this page, skipping\n";
         }
 
-        if (page < state.n) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     std::cout << "\n=== CAPTURE COMPLETE ===\n";
     std::cout << "Captured " << state.screenshotFiles.size() << " pages\n";
 
-    // Создаем один PDF с разными форматами страниц
-    if (!state.regions.empty() && state.n > 0) {
-        CreateMixedPDFFromRegions(state.regions, state.n);
+    if (!state.regions.empty()) {
+        CreateMixedPDFFromRegions(state.regions);
     }
 
     std::cout << "\n=== TASK COMPLETED ===\n";

@@ -8,16 +8,16 @@
 
 // Структура для настроек PDF региона
 struct PDFConfig {
-    std::string format = "A4";          // Формат: A1, A2, A3, A4, A5
-    std::string orientation = "Portrait"; // Portrait или Landscape
+    std::string format = "A4";
+    std::string orientation = "Portrait";
 };
 
 // Структура для хранения области захвата и связанных с ней страниц
 struct CaptureRegion {
-    RECT rect;                          // Область захвата
-    std::vector<int> pages;             // Список страниц для этой области
-    PDFConfig pdfConfig;                // Настройки PDF для этого региона
-    std::string description;            // Описание для отладки
+    RECT rect;
+    std::vector<int> pages;
+    PDFConfig pdfConfig;
+    std::string description;
 };
 
 struct GlobalState {
@@ -27,9 +27,8 @@ struct GlobalState {
     std::atomic<bool> appReady{ false };
     std::atomic<bool> isSelectingRegions{ false };
 
-    int n = 0;  // Общее количество страниц
+    int totalPages = 0;  // Общее количество страниц в документе (для ограничения)
 
-    // Список областей захвата
     std::vector<CaptureRegion> regions;
 
     RECT currentRect{ 0, 0, 0, 0 };
